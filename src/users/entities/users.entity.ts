@@ -5,12 +5,18 @@ export class Users {
   id: number;
 
   @Column({ unique: true })
+  username: string;
+
+  @Column({ unique: true })
   email: string;
+
+  @Column({ unique: true })
+  password: string;
 
   @Column({ default: false })
   banned: boolean;
 
-  @Column()
+  @Column({ nullable: true })
   bannedReason: string;
 
   @Column({ default: false })

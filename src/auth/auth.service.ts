@@ -23,9 +23,4 @@ export class AuthService {
       accessToken: this.jwtService.sign(payload),
     };
   }
-
-  async findUserId(payload: any): Promise<any> {
-    const { id, username } = payload;
-    return { id, username };
-  }
 }
