@@ -8,7 +8,6 @@ export class DatabaseService {
   async checkConnection() {
     try {
       await this.dataSource.initialize();
-      console.log('Database connected successfully!');
     } catch (error) {
       console.error('Database connection failed:', error.message);
     }

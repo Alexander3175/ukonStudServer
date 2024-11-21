@@ -6,10 +6,11 @@ import {
   Body,
   UnauthorizedException,
   Get,
+  Req,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 
 import { UsersService } from 'src/users/users.service';
+import { LocalAuthGuard } from './guard/local-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -17,13 +18,21 @@ export class AuthController {
     private authService: AuthService,
     private usersService: UsersService,
   ) {}
-  @UseGuards(AuthGuard('local'))
+  @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@Body() body: { username: string; password: string }) {
-    const user = await this.authService.validateUser(
-      body.username,
-      body.password,
-    );
+  async login(@Req() req) {
+    const user = await req.user;
+    if (!user) {
+      throw new UnauthorizedException('Invalid user');
+    }
+
+    const accessToken = this.authService.login(user);
+    return { accessToken };
+  }
+  /*
+  @Post('registration')
+  async registration(@Body() userDto: CreateUserDto) {
+    const user = await this.authService.registration(userDto);
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -31,6 +40,7 @@ export class AuthController {
     const accessToken = await this.authService.login(user.id, user.username);
     return { accessToken };
   }
+  */
   @Get('search')
   async findUser(@Body() body: { id: number }) {
     const user = await this.usersService.findUserId(body.id);

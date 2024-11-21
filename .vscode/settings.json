@@ -252,7 +252,7 @@
   "workbench.activityBar.orientation": "vertical",
   "editor.minimap.renderCharacters": false,
   "workbench.iconTheme": "material-icon-theme",
-  "workbench.preferredDarkColorTheme": "Vim Deep Dark",
+  "workbench.preferredDarkColorTheme": "Tokyo Night",
   "breadcrumbs.enabled": false,
   "editor.lineHeight": 23,
   "editor.semanticHighlighting.enabled": true,

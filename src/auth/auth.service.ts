@@ -9,18 +9,37 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async validateUser(username: string, password: string): Promise<any> {
-    const user = await this.usersService.findUser(username);
-    if (user && user.password === password) {
+  async validateUser(reqUser: {
+    email: string;
+    password: string;
+  }): Promise<any> {
+    const user = await this.usersService.findUser(reqUser.email);
+
+    if (user && user.password === reqUser.password) {
+      console.log('user and password valide');
       return { ...user, password: undefined };
     }
+
     return null;
   }
 
-  login(id: number, username: string) {
-    const payload = { id: id, username: username };
+  login(user: { id: number; email: string; username: string }) {
+    const payload = { id: user.id, email: user.email, username: user.username };
     return {
       accessToken: this.jwtService.sign(payload),
     };
   }
+  /*
+  async registration(userDto: CreateUserDto) {
+    const findUser = this.usersService.findUser(userDto.email);
+    if (!findUser) {
+      throw new BadRequestException('user with this email does not exist');
+    }
+    const hashPassword = await bcrypt.hash(userDto.password, 5);
+    const user = await this.usersService.createUser({
+      ...userDto,
+      password: hashPassword,
+    });
+  }
+  */
 }

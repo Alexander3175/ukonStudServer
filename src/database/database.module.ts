@@ -3,15 +3,13 @@ import { DatabaseService } from './database.service';
 import { DatabaseController } from './database.controller';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { Users } from 'src/users/entities/users.entity';
+import Users from 'src/users/entities/users.entity';
 
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService): TypeOrmModuleOptions => ({
-        logging: true,
-
         type: 'postgres',
         host: configService.get<string>('DB_HOST'),
         port: configService.get<number>('DB_PORT'),
