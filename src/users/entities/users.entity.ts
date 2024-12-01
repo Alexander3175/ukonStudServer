@@ -21,4 +21,7 @@ export default class Users {
 
   @Column({ default: false })
   isActive: boolean;
+
+  @Column({ nullable: true })
+  refreshToken: string;
 }

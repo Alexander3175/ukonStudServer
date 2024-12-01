@@ -30,4 +30,13 @@ export class UsersService {
     const users = await this.userRepository.find();
     return users;
   }
+
+  async saveRefreshToken(refreshToken: string, id: number): Promise<any> {
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (!user) {
+      throw new Error('User not found');
+    }
+    user.refreshToken = refreshToken;
+    return this.userRepository.save(user);
+  }
 }

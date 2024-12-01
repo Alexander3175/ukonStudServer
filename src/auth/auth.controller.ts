@@ -11,6 +11,7 @@ import {
 
 import { UsersService } from 'src/users/users.service';
 import { LocalAuthGuard } from './guard/local-auth.guard';
+import CreateUserDto from 'src/users/dto/create-user.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -21,26 +22,24 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   async login(@Req() req) {
-    const user = await req.user;
+    console.log('req:', req);
+
+    const user = req.user;
+    console.log('controller:', user);
     if (!user) {
       throw new UnauthorizedException('Invalid user');
     }
 
     const accessToken = this.authService.login(user);
-    return { accessToken };
+    return accessToken;
   }
-  /*
+
   @Post('registration')
   async registration(@Body() userDto: CreateUserDto) {
     const user = await this.authService.registration(userDto);
-    if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
-
-    const accessToken = await this.authService.login(user.id, user.username);
-    return { accessToken };
+    return { message: 'User registered successfully', user };
   }
-  */
+
   @Get('search')
   async findUser(@Body() body: { id: number }) {
     const user = await this.usersService.findUserId(body.id);
@@ -48,5 +47,10 @@ export class AuthController {
       throw new UnauthorizedException('not found user');
     }
     return user;
+  }
+
+  @Post('refresh')
+  refreshToken(@Body() body: { refreshToken: string }) {
+    return this.authService.refreshAccessToken(body.refreshToken);
   }
 }
