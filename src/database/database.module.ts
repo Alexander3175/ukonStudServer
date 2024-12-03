@@ -4,6 +4,7 @@ import { DatabaseController } from './database.controller';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import Users from 'src/users/entities/users.entity';
+import Game from 'src/games/entities/games.entity';
 
 @Module({
   imports: [
@@ -16,7 +17,7 @@ import Users from 'src/users/entities/users.entity';
         username: configService.get<string>('DB_USERNAME'),
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_NAME'),
-        entities: [Users],
+        entities: [Users, Game],
         synchronize: true,
       }),
       inject: [ConfigService],

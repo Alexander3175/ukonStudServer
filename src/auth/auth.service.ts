@@ -24,7 +24,6 @@ export class AuthService {
     password: string;
   }): Promise<any> {
     const user = await this.usersService.findUser(reqUser.email);
-    console.log('findUSer: ', user);
 
     return await this.checkPasswordUser(reqUser, user);
   }

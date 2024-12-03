@@ -22,10 +22,7 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   async login(@Req() req) {
-    console.log('req:', req);
-
     const user = req.user;
-    console.log('controller:', user);
     if (!user) {
       throw new UnauthorizedException('Invalid user');
     }
