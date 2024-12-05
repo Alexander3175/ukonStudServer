@@ -16,4 +16,9 @@ export class GamesService {
     const newGame = this.gameRepository.create(gameDto);
     return await this.gameRepository.save(newGame);
   }
+
+  async getPost(title: string): Promise<Game> {
+    const getPost = await this.gameRepository.findOne({ where: { title } });
+    return getPost;
+  }
 }
