@@ -35,6 +35,7 @@ export class JwtAuthGuard implements CanActivate {
       const secret = this.configService.get<string>('SECRET_ACCESSKEY');
       const user = this.jwtService.verify(token, { secret });
       req.user = user;
+      console.log('User: ', user);
       return true;
     } catch (error) {
       console.error('JWT verification error:', error);

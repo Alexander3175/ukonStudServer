@@ -8,8 +8,10 @@ export class RolesService {
   constructor(
     @InjectRepository(Role) private roleRepository: Repository<Role>,
   ) {}
-  async getRoleUser(role: UserRoles) {
-    const roleUser = await this.roleRepository.findOne({ where: { role } });
+  async getRoleUser(role: UserRoles): Promise<Role> {
+    const roleUser = await this.roleRepository.findOne({
+      where: { role },
+    });
     return roleUser;
   }
 }

@@ -3,8 +3,8 @@ import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
-  JoinColumn,
-  ManyToOne,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
 @Entity()
 export default class Users {
@@ -32,7 +32,17 @@ export default class Users {
   @Column({ type: 'varchar', nullable: true })
   refreshToken: string;
 
-  @ManyToOne(() => Role, (role) => role.users, { eager: true })
-  @JoinColumn({ name: 'role_id' })
-  role: Role;
+  @ManyToMany(() => Role, (role) => role.users)
+  @JoinTable({
+    name: 'user_roles',
+    joinColumn: {
+      name: 'user_id',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'role_id',
+      referencedColumnName: 'id',
+    },
+  })
+  roles: Role[];
 }

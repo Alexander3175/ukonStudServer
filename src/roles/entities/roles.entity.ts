@@ -1,4 +1,10 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToMany,
+  JoinTable,
+} from 'typeorm';
 import Users from 'src/users/entities/users.entity';
 
 export enum UserRoles {
@@ -19,9 +25,20 @@ export default class Role {
   })
   role: UserRoles;
 
-  @Column({ type: 'text', nullable: true })
+  @Column({ name: 'value_role', type: 'text', nullable: true })
   valueRole: string;
 
-  @OneToMany(() => Users, (user) => user.role)
+  @ManyToMany(() => Users, (user) => user.roles)
+  @JoinTable({
+    name: 'user_roles',
+    joinColumn: {
+      name: 'role_id',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'user_id',
+      referencedColumnName: 'id',
+    },
+  })
   users: Users[];
 }

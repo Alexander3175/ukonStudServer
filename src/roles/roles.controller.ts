@@ -1,5 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
-import { UserRoles } from './entities/roles.entity';
+import { Controller } from '@nestjs/common';
 
 import { RolesService } from './roles.service';
 
@@ -7,8 +6,10 @@ import { RolesService } from './roles.service';
 export class RolesController {
   constructor(private roleService: RolesService) {}
 
+  /*
   @Get('getRole')
   getRoleUser(@Query('role') role: UserRoles) {
     return this.roleService.getRoleUser(role);
   }
+    */
 }

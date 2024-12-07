@@ -26,5 +26,6 @@ import Role from 'src/roles/entities/roles.entity';
   ],
   controllers: [DatabaseController],
   providers: [DatabaseService],
+  exports: [TypeOrmModule],
 })
 export class DatabaseModule {}

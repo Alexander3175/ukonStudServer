@@ -12,6 +12,9 @@ import {
 import { UsersService } from 'src/users/users.service';
 import { LocalAuthGuard } from './guard/local-auth.guard';
 import CreateUserDto from 'src/users/dto/create-user.dto';
+import { Roles } from 'src/decorators/roles.decorator';
+import { RolesGuard } from './guard/role.guard';
+import { UserRoles } from 'src/roles/entities/roles.entity';
 
 @Controller('auth')
 export class AuthController {
@@ -36,8 +39,9 @@ export class AuthController {
     const user = await this.authService.registration(userDto);
     return { message: 'User registered successfully', user };
   }
-
   @Get('search')
+  @Roles(UserRoles.ADMIN)
+  @UseGuards(RolesGuard)
   async findUser(@Body() body: { id: number }) {
     const user = await this.usersService.findUserId(body.id);
     if (!user) {

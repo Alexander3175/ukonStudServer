@@ -3,12 +3,22 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import CreateUserDto from 'src/users/dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
+import { RolesService } from 'src/roles/roles.service';
+import { UserRoles } from 'src/roles/entities/roles.entity';
+
+interface IUser {
+  id: number;
+  email: string;
+  username: string;
+  roles: string[];
+}
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
+    private rolesService: RolesService,
   ) {}
 
   private async checkPasswordUser(reqUser: { password: string }, user: any) {
@@ -28,27 +38,27 @@ export class AuthService {
     return await this.checkPasswordUser(reqUser, user);
   }
 
-  generateTokens(payload: { id: number; email: string; username: string }) {
-    const accessToken = this.jwtService.sign(payload);
-
-    const refreshToken = this.jwtService.sign(payload);
-
-    return {
-      accessToken,
-      refreshToken,
-    };
+  generateAccessToken(payload: IUser) {
+    const accessToken = this.jwtService.sign(payload, {
+      expiresIn: '15m',
+    });
+    return accessToken;
   }
-
-  async login(user: { id: number; email: string; username: string }) {
-    const tokens = this.generateTokens({
-      id: user.id,
-      email: user.email,
-      username: user.username,
+  generateRefreshTokens(payload: { id: number }) {
+    const refreshToken = this.jwtService.sign(payload, {
+      expiresIn: '7d',
     });
 
-    await this.usersService.saveRefreshToken(tokens.refreshToken, user.id);
+    return refreshToken;
+  }
 
-    return tokens;
+  async login(user: IUser) {
+    const accessToken = this.generateAccessToken(user);
+    const refreshToken = this.generateRefreshTokens(user);
+
+    await this.usersService.saveRefreshToken(refreshToken, user.id);
+
+    return { accessToken, refreshToken };
   }
 
   async refreshAccessToken(refreshToken: string) {
@@ -70,12 +80,28 @@ export class AuthService {
   async registration(userDto: CreateUserDto) {
     const salt = 12;
     const hashPassword = await bcrypt.hash(userDto.password, salt);
+    console.log('UserRoles', UserRoles.USER);
+    const defaultRole = await this.rolesService.getRoleUser(UserRoles.USER);
 
-    const user = await this.usersService.createUser({
-      ...userDto,
-      password: hashPassword,
-    });
+    const user = await this.usersService.createUser(
+      {
+        ...userDto,
+        password: hashPassword,
+      },
+      [defaultRole],
+    );
 
-    return user;
+    const payload = {
+      id: user.id,
+      email: user.email,
+      username: user.username,
+      roles: user.roles.map((role) => role.role),
+    };
+    const accessToken = this.generateAccessToken(payload);
+    const refreshToken = this.generateRefreshTokens({ id: user.id });
+
+    await this.usersService.saveRefreshToken(refreshToken, user.id);
+
+    return { accessToken, refreshToken };
   }
 }
