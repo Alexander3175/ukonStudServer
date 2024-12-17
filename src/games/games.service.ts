@@ -20,8 +20,12 @@ export class GamesService {
     return await this.gameRepository.save(newGame);
   }
 
-  async getPost(title: string): Promise<Game> {
-    return await this.gameRepository.findOne({ where: { title } });
+  async getPost(id: number): Promise<Game> {
+    const game = await this.gameRepository.findOne({ where: { id } });
+    if (!game) {
+      throw new Error('Game not found');
+    }
+    return game;
   }
 
   async getPosts(): Promise<Game[]> {

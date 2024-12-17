@@ -5,10 +5,11 @@ import {
   Controller,
   Get,
   Post,
-  Query,
   UseGuards,
   UseInterceptors,
   UploadedFile,
+  Param,
+  BadRequestException,
 } from '@nestjs/common';
 
 import CreateGameDto from './dto/create-game.dto';
@@ -53,13 +54,15 @@ export class GamesController {
     return newGame;
   }
 
-  // Отримання гри за назвою
-  @Get('game')
-  async getGame(@Query('title') title: string): Promise<Game> {
-    return this.gamesService.getPost(title);
+  @Get('game/:id')
+  async getGame(@Param('id') id: string): Promise<Game> {
+    const gameId = parseInt(id, 10);
+    if (isNaN(gameId)) {
+      throw new BadRequestException('Invalid game ID');
+    }
+    return this.gamesService.getPost(gameId);
   }
 
-  // Отримання всіх ігор
   @Get('games')
   async getGames(): Promise<Game[]> {
     return this.gamesService.getPosts();
