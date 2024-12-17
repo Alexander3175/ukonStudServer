@@ -11,6 +11,8 @@ import { RolesModule } from './roles/roles.module';
 import Users from './users/entities/users.entity';
 import Game from './games/entities/games.entity';
 import Role from './roles/entities/roles.entity';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -21,6 +23,10 @@ import Role from './roles/entities/roles.entity';
     AuthModule,
     GamesModule,
     RolesModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'uploads'),
+      serveRoot: '/uploads',
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],

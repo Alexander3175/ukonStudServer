@@ -8,7 +8,6 @@ import { UserRoles } from 'src/roles/entities/roles.entity';
 
 interface IUser {
   id: number;
-  email: string;
   username: string;
   roles: string[];
 }

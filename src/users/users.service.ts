@@ -24,7 +24,10 @@ export class UsersService {
     return { ...response, password: undefined };
   }
   async findUser(email: string): Promise<Users> {
-    const response = await this.userRepository.findOne({ where: { email } });
+    const response = await this.userRepository.findOne({
+      where: { email },
+      relations: ['roles'],
+    });
     return response;
   }
   async getAllUsers(): Promise<Users[]> {

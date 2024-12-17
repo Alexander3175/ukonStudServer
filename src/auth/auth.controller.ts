@@ -29,7 +29,6 @@ export class AuthController {
     if (!user) {
       throw new UnauthorizedException('Invalid user');
     }
-
     const accessToken = this.authService.login(user);
     return accessToken;
   }
@@ -39,9 +38,9 @@ export class AuthController {
     const user = await this.authService.registration(userDto);
     return { message: 'User registered successfully', user };
   }
-  @Get('search')
-  @Roles(UserRoles.ADMIN)
+  @Roles(UserRoles.USER)
   @UseGuards(RolesGuard)
+  @Get('search')
   async findUser(@Body() body: { id: number }) {
     const user = await this.usersService.findUserId(body.id);
     if (!user) {
@@ -49,7 +48,8 @@ export class AuthController {
     }
     return user;
   }
-
+  @Roles(UserRoles.USER)
+  @UseGuards(RolesGuard)
   @Post('refresh')
   refreshToken(@Body() body: { refreshToken: string }) {
     return this.authService.refreshAccessToken(body.refreshToken);

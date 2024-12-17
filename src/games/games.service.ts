@@ -10,15 +10,21 @@ export class GamesService {
     @InjectRepository(Game) private gameRepository: Repository<Game>,
   ) {}
 
-  async createPost(gameDto: CreateGameDto): Promise<Game> {
-    console.log(gameDto);
+  async createPost(gameDto: CreateGameDto, filePath: string): Promise<Game> {
+    const newGameData = {
+      ...gameDto,
+      file: filePath,
+    };
 
-    const newGame = this.gameRepository.create(gameDto);
+    const newGame = this.gameRepository.create(newGameData);
     return await this.gameRepository.save(newGame);
   }
 
   async getPost(title: string): Promise<Game> {
-    const getPost = await this.gameRepository.findOne({ where: { title } });
-    return getPost;
+    return await this.gameRepository.findOne({ where: { title } });
+  }
+
+  async getPosts(): Promise<Game[]> {
+    return await this.gameRepository.find();
   }
 }

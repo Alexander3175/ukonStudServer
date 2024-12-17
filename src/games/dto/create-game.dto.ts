@@ -16,9 +16,9 @@ export default class CreateGameDto {
   @IsNotEmpty()
   description: string;
 
-  @IsString()
+  @IsOptional()
   @IsNotEmpty()
-  file: string;
+  file?: string;
 
   @IsOptional()
   @IsNumber()
