@@ -1,3 +1,4 @@
+import UserFavorites from 'src/profile-user/entities/user-favorites.entity';
 import Role from 'src/roles/entities/roles.entity';
 import {
   Entity,
@@ -5,6 +6,7 @@ import {
   PrimaryGeneratedColumn,
   ManyToMany,
   JoinTable,
+  OneToMany,
 } from 'typeorm';
 @Entity()
 export default class Users {
@@ -31,6 +33,9 @@ export default class Users {
 
   @Column({ type: 'varchar', nullable: true })
   refreshToken: string;
+
+  @OneToMany(() => UserFavorites, (favorite) => favorite.user)
+  favorites: UserFavorites[];
 
   @ManyToMany(() => Role, (role) => role.users)
   @JoinTable({

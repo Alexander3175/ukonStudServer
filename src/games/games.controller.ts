@@ -1,45 +1,24 @@
-import { GamesService } from './games.service';
-import { JwtAuthGuard } from './../auth/guard/jwt-auth.guard';
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
+  Param,
   Post,
+  UploadedFile,
   UseGuards,
   UseInterceptors,
-  UploadedFile,
-  Param,
-  BadRequestException,
 } from '@nestjs/common';
-
+import { FileInterceptor } from '@nestjs/platform-express/multer';
+import { JwtAuthGuard } from './../auth/guard/jwt-auth.guard';
 import CreateGameDto from './dto/create-game.dto';
 import Game from './entities/games.entity';
-import { FileInterceptor } from '@nestjs/platform-express/multer';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
-
-const storage = diskStorage({
-  destination: './uploads/',
-  filename: (req, file, callback) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    callback(null, `${uniqueSuffix}${extname(file.originalname)}`);
-  },
-});
-
-export const multerOptions = {
-  storage,
-  fileFilter: (req, file, callback) => {
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
-    if (!allowedTypes.includes(file.mimetype)) {
-      return callback(new Error('Unsupported file format'), false);
-    }
-    callback(null, true);
-  },
-};
+import { GamesService } from './games.service';
+import { compressImage, multerOptions } from './lib/file';
 
 @Controller('games')
 export class GamesController {
-  constructor(private gamesService: GamesService) {}
+  constructor(private readonly gamesService: GamesService) {}
 
   @UseGuards(JwtAuthGuard)
   @Post('create')
@@ -48,9 +27,18 @@ export class GamesController {
     @Body() gameDto: CreateGameDto,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<Game> {
-    const filePath = file ? `uploads/${file.filename}` : null;
+    if (!file) {
+      throw new BadRequestException('File is required');
+    }
 
-    const newGame = await this.gamesService.createPost(gameDto, filePath);
+    const filePath = `uploads/${file.filename}`;
+
+    const compressedFilePath = await compressImage(filePath);
+
+    const newGame = await this.gamesService.createPost(
+      gameDto,
+      compressedFilePath,
+    );
     return newGame;
   }
 

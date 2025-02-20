@@ -1,16 +1,9 @@
-import {
-  Entity,
-  Column,
-  PrimaryGeneratedColumn,
-  ManyToMany,
-  JoinTable,
-} from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToMany } from 'typeorm';
 import Users from 'src/users/entities/users.entity';
 
 export enum UserRoles {
   ADMIN = 'admin',
   USER = 'user',
-  MODERATOR = 'moderator',
 }
 @Entity()
 export default class Role {
@@ -29,16 +22,5 @@ export default class Role {
   valueRole: string;
 
   @ManyToMany(() => Users, (user) => user.roles)
-  @JoinTable({
-    name: 'user_roles',
-    joinColumn: {
-      name: 'role_id',
-      referencedColumnName: 'id',
-    },
-    inverseJoinColumn: {
-      name: 'user_id',
-      referencedColumnName: 'id',
-    },
-  })
   users: Users[];
 }

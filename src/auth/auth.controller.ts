@@ -1,36 +1,49 @@
-import { AuthService } from './auth.service';
 import {
-  Controller,
-  Post,
-  UseGuards,
   Body,
-  UnauthorizedException,
+  Controller,
   Get,
+  Post,
+  UnauthorizedException,
+  UseGuards,
   Req,
+  Res,
+  Query,
 } from '@nestjs/common';
-
+import { AuthService } from './auth.service';
+import { Request, Response } from 'express';
+import { Roles } from 'src/decorators/roles.decorator';
+import { UserRoles } from 'src/roles/entities/roles.entity';
+import CreateUserDto from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
 import { LocalAuthGuard } from './guard/local-auth.guard';
-import CreateUserDto from 'src/users/dto/create-user.dto';
-import { Roles } from 'src/decorators/roles.decorator';
 import { RolesGuard } from './guard/role.guard';
-import { UserRoles } from 'src/roles/entities/roles.entity';
+import { JwtAuthGuard } from './guard/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
   constructor(
-    private authService: AuthService,
-    private usersService: UsersService,
+    private readonly authService: AuthService,
+    private readonly usersService: UsersService,
   ) {}
+
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@Req() req) {
+  async login(@Req() req, @Res() res: Response) {
     const user = req.user;
     if (!user) {
       throw new UnauthorizedException('Invalid user');
     }
-    const accessToken = this.authService.login(user);
-    return accessToken;
+    const { accessToken, refreshToken } = await this.authService.login(user);
+    res.cookie('accessToken', accessToken, {
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+    });
+    res.cookie('refreshToken', refreshToken, {
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+    });
+
+    return res.json({ accessToken });
   }
 
   @Post('registration')
@@ -41,8 +54,8 @@ export class AuthController {
   @Roles(UserRoles.USER)
   @UseGuards(RolesGuard)
   @Get('search')
-  async findUser(@Body() body: { id: number }) {
-    const user = await this.usersService.findUserId(body.id);
+  async findUser(@Query('id') id: number) {
+    const user = await this.usersService.findUserId(id);
     if (!user) {
       throw new UnauthorizedException('not found user');
     }
@@ -51,7 +64,28 @@ export class AuthController {
   @Roles(UserRoles.USER)
   @UseGuards(RolesGuard)
   @Post('refresh')
-  refreshToken(@Body() body: { refreshToken: string }) {
-    return this.authService.refreshAccessToken(body.refreshToken);
+  async refresh(@Req() req: Request, @Res() res: Response) {
+    const { accessToken, refreshToken } =
+      await this.authService.refreshAccessToken(req.cookies.refreshToken);
+
+    res.cookie('accessToken', accessToken, {
+      secure: true,
+      sameSite: 'strict',
+      maxAge: 1 * 60 * 1000,
+    });
+
+    res.cookie('refreshToken', refreshToken, {
+      secure: true,
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    return res.json({ accessToken });
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  async getProfile(@Req() req) {
+    return req.user;
   }
 }

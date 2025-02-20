@@ -6,6 +6,7 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import Users from 'src/users/entities/users.entity';
 import Game from 'src/games/entities/games.entity';
 import Role from 'src/roles/entities/roles.entity';
+import UserFavorites from 'src/profile-user/entities/user-favorites.entity';
 
 @Module({
   imports: [
@@ -18,7 +19,7 @@ import Role from 'src/roles/entities/roles.entity';
         username: configService.get<string>('DB_USERNAME'),
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_NAME'),
-        entities: [Users, Game, Role],
+        entities: [Users, Game, Role, UserFavorites],
         synchronize: true,
       }),
       inject: [ConfigService],

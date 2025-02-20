@@ -1,18 +1,19 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { join } from 'path';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { DatabaseModule } from './database/database.module';
-import { ConfigModule } from '@nestjs/config';
-import { UsersModule } from './users/users.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
+import { DatabaseModule } from './database/database.module';
+import Game from './games/entities/games.entity';
 import { GamesModule } from './games/games.module';
+import { ProfileUserModule } from './profile-user/profile-user.module';
+import Role from './roles/entities/roles.entity';
 import { RolesModule } from './roles/roles.module';
 import Users from './users/entities/users.entity';
-import Game from './games/entities/games.entity';
-import Role from './roles/entities/roles.entity';
-import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -27,8 +28,14 @@ import { join } from 'path';
       rootPath: join(__dirname, '..', 'uploads'),
       serveRoot: '/uploads',
     }),
+    ProfileUserModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}
+/*implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LogRequestMiddleware).forRoutes('*');
+  }
+}*/

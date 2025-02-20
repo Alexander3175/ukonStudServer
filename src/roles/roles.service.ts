@@ -6,12 +6,15 @@ import { Injectable } from '@nestjs/common';
 @Injectable()
 export class RolesService {
   constructor(
-    @InjectRepository(Role) private roleRepository: Repository<Role>,
+    @InjectRepository(Role) private readonly roleRepository: Repository<Role>,
   ) {}
-  async getRoleUser(role: UserRoles): Promise<Role> {
-    const roleUser = await this.roleRepository.findOne({
-      where: { role },
-    });
-    return roleUser;
+  async getRoleUser(role: UserRoles) {
+    return this.roleRepository.findOne({ where: { role } });
+  }
+
+  async createRole(roleData: { role: UserRoles }) {
+    const role = new Role();
+    role.role = roleData.role;
+    return this.roleRepository.save(role);
   }
 }

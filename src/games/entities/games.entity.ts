@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import UserFavorites from 'src/profile-user/entities/user-favorites.entity';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 
 @Entity()
 export default class Game {
@@ -19,4 +20,7 @@ export default class Game {
 
   @Column({ type: 'simple-array' })
   tags: string[];
+
+  @OneToMany(() => UserFavorites, (favorite) => favorite.game)
+  favorites: UserFavorites[];
 }
