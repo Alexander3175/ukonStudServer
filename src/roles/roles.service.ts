@@ -11,6 +11,9 @@ export class RolesService {
   async getRoleUser(role: UserRoles) {
     return this.roleRepository.findOne({ where: { role } });
   }
+  async getAllRoles() {
+    return this.roleRepository.find();
+  }
 
   async createRole(roleData: { role: UserRoles }) {
     const role = new Role();

@@ -14,6 +14,7 @@ import Role from './roles/entities/roles.entity';
 import { RolesModule } from './roles/roles.module';
 import Users from './users/entities/users.entity';
 import { UsersModule } from './users/users.module';
+import { SharedModule } from './shared/shared.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { UsersModule } from './users/users.module';
       serveRoot: '/uploads',
     }),
     ProfileUserModule,
+    SharedModule,
   ],
   controllers: [AppController],
   providers: [AppService],

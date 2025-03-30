@@ -2,8 +2,10 @@ import { Entity, Column, PrimaryGeneratedColumn, ManyToMany } from 'typeorm';
 import Users from 'src/users/entities/users.entity';
 
 export enum UserRoles {
-  ADMIN = 'admin',
-  USER = 'user',
+  ADMIN = 'ADMIN',
+  USER = 'USER',
+  GUEST = 'CLIENT',
+  MODERATOR = 'MODERATOR',
 }
 @Entity()
 export default class Role {

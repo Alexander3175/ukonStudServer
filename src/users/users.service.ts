@@ -3,7 +3,7 @@ import Users from './entities/users.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import CreateUserDto from './dto/create-user.dto';
-import Role from 'src/roles/entities/roles.entity';
+import Role, { UserRoles } from 'src/roles/entities/roles.entity';
 
 @Injectable()
 export class UsersService {
@@ -23,6 +23,7 @@ export class UsersService {
       relations: ['roles'],
     });
     if (!response) {
+      console.error(`User with id ${id} not found`);
       throw new Error(`User with id ${id} not found`);
     }
     return { ...response, password: undefined };
@@ -35,7 +36,9 @@ export class UsersService {
     return response;
   }
   async getAllUsers(): Promise<Users[]> {
-    const users = await this.userRepository.find();
+    const users = await this.userRepository.find({
+      relations: ['roles'],
+    });
     return users;
   }
 
@@ -65,5 +68,26 @@ export class UsersService {
 
     user.roles.push(role);
     await this.userRepository.save(user);
+  }
+
+  async updateUserRoles(userId: number, roles: string[]) {
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      relations: ['roles'],
+    });
+    if (!user) {
+      throw new Error('User not found');
+    }
+    user.roles = [];
+
+    for (const role of roles) {
+      const roleEntity = await this.rolesRepository.findOne({
+        where: { role: role as UserRoles },
+      });
+      if (roleEntity) {
+        user.roles.push(roleEntity);
+      }
+    }
+    return this.userRepository.save(user);
   }
 }

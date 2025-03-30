@@ -1,4 +1,4 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 
 import { RolesService } from './roles.service';
 
@@ -6,10 +6,8 @@ import { RolesService } from './roles.service';
 export class RolesController {
   constructor(private roleService: RolesService) {}
 
-  /*
-  @Get('getRole')
-  getRoleUser(@Query('role') role: UserRoles) {
-    return this.roleService.getRoleUser(role);
+  @Get('getAllRoles')
+  getAllRoles() {
+    return this.roleService.getAllRoles();
   }
-    */
 }

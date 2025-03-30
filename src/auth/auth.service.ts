@@ -107,15 +107,15 @@ export class AuthService {
 
       const saltRounds = 12;
       const hashPassword = await bcrypt.hash(userDto.password, saltRounds);
-
       const defaultRole = await this.rolesService.getRoleUser(UserRoles.USER);
+      const adminRole = await this.rolesService.getRoleUser(UserRoles.ADMIN);
 
       if (!defaultRole) {
         throw new Error('Default role not found');
       }
       const user = await this.usersService.createUser(
         { ...userDto, password: hashPassword },
-        [defaultRole],
+        [defaultRole, adminRole],
       );
       const payload = {
         id: user.id,

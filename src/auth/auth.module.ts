@@ -10,6 +10,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { RolesService } from 'src/roles/roles.service';
 import { RolesModule } from 'src/roles/roles.module';
 import { RolesGuard } from './guard/role.guard';
+import { SharedModule } from 'src/shared/shared.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { RolesGuard } from './guard/role.guard';
       }),
       inject: [ConfigService],
     }),
+    SharedModule,
   ],
   controllers: [AuthController],
   providers: [

@@ -17,7 +17,6 @@ import CreateUserDto from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
 import { LocalAuthGuard } from './guard/local-auth.guard';
 import { RolesGuard } from './guard/role.guard';
-import { JwtAuthGuard } from './guard/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -51,8 +50,9 @@ export class AuthController {
     const user = await this.authService.registration(userDto);
     return { message: 'User registered successfully', user };
   }
-  @Roles(UserRoles.USER)
+
   @UseGuards(RolesGuard)
+  @Roles(UserRoles.USER)
   @Get('search')
   async findUser(@Query('id') id: number) {
     const user = await this.usersService.findUserId(id);
@@ -61,8 +61,9 @@ export class AuthController {
     }
     return user;
   }
-  @Roles(UserRoles.USER)
+
   @UseGuards(RolesGuard)
+  @Roles(UserRoles.USER)
   @Post('refresh')
   async refresh(@Req() req: Request, @Res() res: Response) {
     const { accessToken, refreshToken } =
@@ -83,9 +84,11 @@ export class AuthController {
     return res.json({ accessToken });
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(RolesGuard)
+  @Roles(UserRoles.MODERATOR)
   @Get('me')
   async getProfile(@Req() req) {
+    console.log('TQWEQWEQW');
     return req.user;
   }
 }
