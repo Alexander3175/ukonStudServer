@@ -1,6 +1,7 @@
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { UsersService } from './users.service';
 import { Body, Controller, Get, Param, Put, UseGuards } from '@nestjs/common';
+import UpdateUserDto from './dto/update-user.dto';
 @Controller('users')
 export class UsersController {
   constructor(private usersService: UsersService) {}
@@ -10,11 +11,14 @@ export class UsersController {
     const users = await this.usersService.getAllUsers();
     return users;
   }
-  @Put(':id/roles')
-  async updateUserRoles(
+
+  @UseGuards(JwtAuthGuard)
+  @Put(':id')
+  async updateUser(
     @Param('id') id: number,
-    @Body('roles') roles: string[],
+    @Body() updateUserDto: UpdateUserDto,
   ) {
-    return this.usersService.updateUserRoles(id, roles);
+    console.log('Received update data:', updateUserDto);
+    return this.usersService.updateUser(id, updateUserDto);
   }
 }

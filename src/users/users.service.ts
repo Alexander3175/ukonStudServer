@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import CreateUserDto from './dto/create-user.dto';
 import Role, { UserRoles } from 'src/roles/entities/roles.entity';
+import UpdateUserDto from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -70,7 +71,7 @@ export class UsersService {
     await this.userRepository.save(user);
   }
 
-  async updateUserRoles(userId: number, roles: string[]) {
+  async updateUser(userId: number, updateUserDto: UpdateUserDto) {
     const user = await this.userRepository.findOne({
       where: { id: userId },
       relations: ['roles'],
@@ -79,15 +80,23 @@ export class UsersService {
       throw new Error('User not found');
     }
     user.roles = [];
+    if (updateUserDto.username) {
+      user.username = updateUserDto.username;
+    }
+    if (updateUserDto.email) {
+      user.email = updateUserDto.email;
+    }
 
-    for (const role of roles) {
+    for (const role of updateUserDto.roles) {
       const roleEntity = await this.rolesRepository.findOne({
         where: { role: role as UserRoles },
       });
+      console.log('Looking for role:', role);
       if (roleEntity) {
         user.roles.push(roleEntity);
       }
     }
+    console.log('Saving updated user:', user);
     return this.userRepository.save(user);
   }
 }
