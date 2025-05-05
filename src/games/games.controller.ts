@@ -4,6 +4,7 @@ import {
   Controller,
   Get,
   Param,
+  ParseIntPipe,
   Post,
   UploadedFile,
   UseGuards,
@@ -15,12 +16,16 @@ import CreateGameDto from './dto/create-game.dto';
 import Game from './entities/games.entity';
 import { GamesService } from './games.service';
 import { compressImage, multerOptions } from './lib/file';
+import { RolesGuard } from 'src/auth/guard/role.guard';
+import { Roles } from 'src/decorators/roles.decorator';
+import { UserRoles } from 'src/roles/entities/roles.entity';
 
 @Controller('games')
 export class GamesController {
   constructor(private readonly gamesService: GamesService) {}
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoles.ADMIN)
   @Post('create')
   @UseInterceptors(FileInterceptor('file', multerOptions))
   async create(
@@ -43,12 +48,8 @@ export class GamesController {
   }
 
   @Get('game/:id')
-  async getGame(@Param('id') id: string): Promise<Game> {
-    const gameId = parseInt(id, 10);
-    if (isNaN(gameId)) {
-      throw new BadRequestException('Invalid game ID');
-    }
-    return this.gamesService.getPost(gameId);
+  async getGame(@Param('id', ParseIntPipe) id: number): Promise<Game> {
+    return this.gamesService.getPost(id);
   }
 
   @Get('games')

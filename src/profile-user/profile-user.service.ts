@@ -48,7 +48,9 @@ export class ProfileUserService {
     return this.favoriteRepository.save(newFavorite);
   }
 
-  removeGame() {}
+  removeGame(gameId) {
+    return gameId;
+  }
 
   async getGames(userId: number): Promise<UserFavorites[]> {
     const user = await this.usersRepository.findOne({ where: { id: userId } });

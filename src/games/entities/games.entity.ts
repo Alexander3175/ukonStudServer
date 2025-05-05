@@ -18,6 +18,15 @@ export default class Game {
   @Column({ type: 'float', default: 0 })
   rating: number;
 
+  @Column({ type: 'text', nullable: true })
+  gameDeveloper: string;
+
+  @Column({ type: 'date', nullable: true })
+  releaseDate: string;
+
+  @Column({ type: 'text', nullable: true })
+  platform: string;
+
   @Column({ type: 'simple-array' })
   tags: string[];
 

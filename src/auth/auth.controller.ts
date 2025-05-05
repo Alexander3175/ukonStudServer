@@ -8,6 +8,7 @@ import {
   Req,
   Res,
   Query,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Request, Response } from 'express';
@@ -17,6 +18,7 @@ import CreateUserDto from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
 import { LocalAuthGuard } from './guard/local-auth.guard';
 import { RolesGuard } from './guard/role.guard';
+import { JwtAuthGuard } from './guard/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -52,9 +54,9 @@ export class AuthController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles(UserRoles.USER)
+  @Roles(UserRoles.ADMIN)
   @Get('search')
-  async findUser(@Query('id') id: number) {
+  async findUser(@Query('id', ParseIntPipe) id: number) {
     const user = await this.usersService.findUserId(id);
     if (!user) {
       throw new UnauthorizedException('not found user');
@@ -62,33 +64,35 @@ export class AuthController {
     return user;
   }
 
-  @UseGuards(RolesGuard)
-  @Roles(UserRoles.USER)
   @Post('refresh')
   async refresh(@Req() req: Request, @Res() res: Response) {
-    const { accessToken, refreshToken } =
-      await this.authService.refreshAccessToken(req.cookies.refreshToken);
+    const refreshToken = req.cookies?.refreshToken;
+    if (!refreshToken) {
+      throw new UnauthorizedException('Missing refresh token');
+    }
+    const { accessToken, refreshToken: newRefreshToken } =
+      await this.authService.refreshAccessToken(refreshToken);
 
-    res.cookie('accessToken', accessToken, {
-      secure: true,
-      sameSite: 'strict',
-      maxAge: 1 * 60 * 1000,
+    const cookieOptions = (maxAge: number) => ({
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict' as const,
+      maxAge,
     });
 
-    res.cookie('refreshToken', refreshToken, {
-      secure: true,
-      sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    res.cookie('accessToken', accessToken, cookieOptions(15 * 60 * 1000));
+    res.cookie(
+      'refreshToken',
+      newRefreshToken,
+      cookieOptions(7 * 24 * 60 * 60 * 1000),
+    );
 
     return res.json({ accessToken });
   }
 
-  @UseGuards(RolesGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRoles.MODERATOR)
   @Get('me')
   async getProfile(@Req() req) {
-    console.log('TQWEQWEQW');
     return req.user;
   }
 }

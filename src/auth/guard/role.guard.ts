@@ -1,4 +1,5 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { ROLES_KEY } from 'src/decorators/roles.decorator';
@@ -11,6 +12,7 @@ export class RolesGuard implements CanActivate {
     private reflector: Reflector,
     private readonly jwtService: JwtService,
     private accessControlService: AccessControlService,
+    private readonly configService: ConfigService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -20,9 +22,10 @@ export class RolesGuard implements CanActivate {
     );
 
     if (!requiredRoles) return true;
-
     const request = context.switchToHttp().getRequest();
-    const token = request.cookies['accessToken'];
+    const token =
+      request.cookies['accessToken'] ||
+      request.headers['authorization']?.replace('Bearer ', '');
 
     if (!token) {
       console.log('No token found');
@@ -30,7 +33,9 @@ export class RolesGuard implements CanActivate {
     }
 
     try {
-      const decodedToken = await this.jwtService.verify(token);
+      const decodedToken = await this.jwtService.verify(token, {
+        secret: this.configService.get('SECRET_ACCESSKEY'),
+      });
       const userRoles = decodedToken.roles.map(({ role }) => role);
 
       return userRoles.some((role) =>

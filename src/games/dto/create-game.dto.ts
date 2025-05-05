@@ -5,6 +5,7 @@ import {
   IsNumber,
   IsArray,
   IsPositive,
+  IsDateString,
 } from 'class-validator';
 
 export default class CreateGameDto {
@@ -15,6 +16,18 @@ export default class CreateGameDto {
   @IsString()
   @IsNotEmpty()
   description: string;
+
+  @IsString()
+  @IsNotEmpty()
+  gameDeveloper: string;
+
+  @IsDateString()
+  @IsNotEmpty()
+  releaseDate: string;
+
+  @IsString()
+  @IsNotEmpty()
+  platform: string;
 
   @IsOptional()
   @IsNotEmpty()

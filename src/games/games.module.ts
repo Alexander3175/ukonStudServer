@@ -8,6 +8,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtStrategy } from 'src/auth/strategies/jwt.strategy';
 import { UsersModule } from 'src/users/users.module';
 import { AuthModule } from 'src/auth/auth.module';
+import { AccessControlService } from 'src/shared/access-control.service';
 
 @Module({
   imports: [
@@ -25,6 +26,6 @@ import { AuthModule } from 'src/auth/auth.module';
     }),
   ],
   controllers: [GamesController],
-  providers: [GamesService, JwtService, JwtStrategy],
+  providers: [GamesService, JwtService, JwtStrategy, AccessControlService],
 })
 export class GamesModule {}
