@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
+import * as session from 'express-session';
 async function bootstrap() {
   const PORT = process.env.PORT ?? 3175;
   const app = await NestFactory.create(AppModule);
@@ -29,6 +30,13 @@ async function bootstrap() {
     ],
   });
   app.use(cookieParser());
+  app.use(
+    session({
+      secret: 'QWEQWEQWEQWEQWEQWEQWEQWEQWE',
+      resave: false,
+      saveUninitialized: false,
+    }),
+  );
 
   await app.listen(PORT, () => console.log(`${PORT}`));
 }

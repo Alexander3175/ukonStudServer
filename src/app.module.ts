@@ -15,6 +15,7 @@ import { RolesModule } from './roles/roles.module';
 import Users from './users/entities/users.entity';
 import { UsersModule } from './users/users.module';
 import { SharedModule } from './shared/shared.module';
+import { SteamModule } from './steam/steam.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { SharedModule } from './shared/shared.module';
     }),
     ProfileUserModule,
     SharedModule,
+    SteamModule,
   ],
   controllers: [AppController],
   providers: [AppService],

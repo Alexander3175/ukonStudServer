@@ -11,17 +11,8 @@ import { RolesService } from 'src/roles/roles.service';
 import CreateUserDto from 'src/users/dto/create-user.dto';
 import { UsersService } from './../users/users.service';
 import AuthPayloadDto from './dto/auth.dto';
-
-interface IUser {
-  id: number;
-  username: string;
-  roles: string[];
-}
-
-export interface IAuthTokens {
-  accessToken: string;
-  refreshToken: string;
-}
+import { ISteamUser, IUser, IUserWithPassword } from '../types/user';
+import { IAuthTokens } from '../types/token';
 
 @Injectable()
 export class AuthService {
@@ -31,10 +22,9 @@ export class AuthService {
     private readonly rolesService: RolesService,
   ) {}
 
-  async validateUser({ email, password }: AuthPayloadDto): Promise<any> {
+  async validateUser({ email, password }: AuthPayloadDto): Promise<IUser> {
     const user = await this.usersService.findUser(email);
     if (!user) {
-      console.log('User not found');
       throw new UnauthorizedException('User not found');
     }
     return await this.checkPasswordUser(password, user);
@@ -42,21 +32,18 @@ export class AuthService {
 
   private async checkPasswordUser(
     password: string,
-    user: any,
-  ): Promise<IUser | null> {
-    if (!user) {
-      throw new UnauthorizedException('User not found');
-    }
+    user: IUserWithPassword,
+  ): Promise<IUser> {
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      console.log('Invalid password');
       throw new UnauthorizedException('Invalid password');
     }
 
-    return { id: user.id, username: user.username, roles: user.roles };
+    const { id, username, roles } = user;
+    return { id, username, roles };
   }
 
-  generateAccessToken(payload: IUser) {
+  generateAccessToken(payload: IUser | ISteamUser) {
     const accessToken = this.jwtService.sign(payload, {
       expiresIn: '15m',
       algorithm: 'HS256',
@@ -64,6 +51,7 @@ export class AuthService {
     console.log('SERVER:', accessToken);
     return accessToken;
   }
+
   generateRefreshTokens(payload: { id: number }) {
     const refreshToken = this.jwtService.sign(payload, {
       expiresIn: '7d',
@@ -112,7 +100,6 @@ export class AuthService {
       const saltRounds = 12;
       const hashPassword = await bcrypt.hash(userDto.password, saltRounds);
       const defaultRole = await this.rolesService.getRoleUser(UserRoles.USER);
-      // const adminRole = await this.rolesService.getRoleUser(UserRoles.ADMIN);
 
       if (!defaultRole) {
         throw new Error('Default role not found');
@@ -123,9 +110,8 @@ export class AuthService {
       );
       const payload = {
         id: user.id,
-        /*email: user.email,*/
         username: user.username,
-        roles: user.roles.map((role) => role.role),
+        roles: user.roles,
       };
 
       const accessToken = this.generateAccessToken(payload);

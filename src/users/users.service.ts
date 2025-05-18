@@ -5,17 +5,37 @@ import { Repository } from 'typeorm';
 import CreateUserDto from './dto/create-user.dto';
 import Role, { UserRoles } from 'src/roles/entities/roles.entity';
 import UpdateUserDto from './dto/update-user.dto';
+import { IUser } from '../types/user';
+import SteamUser from './entities/steamUser.entity';
+import CreateSteamUserDto from './dto/create-steamUser.dto';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(Users) private readonly userRepository: Repository<Users>,
+    @InjectRepository(SteamUser)
+    private readonly steamUserRepository: Repository<SteamUser>,
     @InjectRepository(Role) private readonly rolesRepository: Repository<Role>,
   ) {}
 
   async createUser(userDto: CreateUserDto, roles: Role[]): Promise<Users> {
     const response = this.userRepository.create({ ...userDto, roles });
     return await this.userRepository.save(response);
+  }
+  async createSteamUser(userSteamDto: CreateSteamUserDto): Promise<SteamUser> {
+    const existingUser = await this.steamUserRepository.findOne({
+      where: { steamId: userSteamDto.steamId },
+    });
+
+    if (existingUser) {
+      throw new Error('User with this Steam ID already exists');
+    }
+    const response = this.steamUserRepository.create({
+      steamId: userSteamDto.steamId,
+      displayName: userSteamDto.displayName,
+      photos: userSteamDto.photos.map((photo) => ({ value: photo })),
+    });
+    return await this.steamUserRepository.save(response);
   }
 
   async findUserId(id: number): Promise<Users> {
@@ -29,6 +49,13 @@ export class UsersService {
     }
     return { ...response, password: undefined };
   }
+  async findBySteamId(steamId: string): Promise<SteamUser> {
+    const response = await this.steamUserRepository.findOne({
+      where: { steamId },
+    });
+    return response;
+  }
+
   async findUser(email: string): Promise<Users> {
     const response = await this.userRepository.findOne({
       where: { email },
@@ -43,7 +70,7 @@ export class UsersService {
     return users;
   }
 
-  async saveRefreshToken(refreshToken: string, userId: number): Promise<any> {
+  async saveRefreshToken(refreshToken: string, userId: number): Promise<IUser> {
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) {
       throw new Error('User not found');

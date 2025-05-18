@@ -7,6 +7,7 @@ import Users from 'src/users/entities/users.entity';
 import Game from 'src/games/entities/games.entity';
 import Role from 'src/roles/entities/roles.entity';
 import UserFavorites from 'src/profile-user/entities/user-favorites.entity';
+import SteamUser from 'src/users/entities/steamUser.entity';
 
 @Module({
   imports: [
@@ -19,7 +20,7 @@ import UserFavorites from 'src/profile-user/entities/user-favorites.entity';
         username: configService.get<string>('DB_USERNAME'),
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_NAME'),
-        entities: [Users, Game, Role, UserFavorites],
+        entities: [Users, Game, Role, UserFavorites, SteamUser],
         synchronize: true,
       }),
       inject: [ConfigService],

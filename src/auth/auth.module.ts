@@ -11,12 +11,13 @@ import { RolesService } from 'src/roles/roles.service';
 import { RolesModule } from 'src/roles/roles.module';
 import { RolesGuard } from './guard/role.guard';
 import { SharedModule } from 'src/shared/shared.module';
+import { SteamStrategy } from './strategies/steam.strategy';
 
 @Module({
   imports: [
     forwardRef(() => UsersModule),
     RolesModule,
-    PassportModule,
+    PassportModule.register({ session: true }),
     ConfigModule.forRoot(),
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -35,6 +36,7 @@ import { SharedModule } from 'src/shared/shared.module';
     JwtStrategy,
     RolesService,
     RolesGuard,
+    SteamStrategy,
   ],
   exports: [AuthService, JwtModule],
 })

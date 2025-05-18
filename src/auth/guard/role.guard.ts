@@ -28,7 +28,6 @@ export class RolesGuard implements CanActivate {
       request.headers['authorization']?.replace('Bearer ', '');
 
     if (!token) {
-      console.log('No token found');
       return false;
     }
 
