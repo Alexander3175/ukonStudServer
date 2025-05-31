@@ -14,6 +14,12 @@ export default class SteamUser {
   @Column({ type: 'json', nullable: true })
   photos: { value: string }[];
 
+  @Column({ type: 'varchar', nullable: true })
+  country: string | null;
+
+  @Column({ type: 'timestamp', nullable: true })
+  lastLogoffAt: Date;
+
   @Column({ type: 'boolean', default: false })
   banned: boolean;
 

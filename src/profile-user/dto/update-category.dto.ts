@@ -1,11 +1,7 @@
-import { IsInt, IsNotEmpty, IsEnum } from 'class-validator';
+import { IsEnum, IsInt, IsNotEmpty } from 'class-validator';
 import { GameCategory } from '../types/game-category.enum';
 
-export class CreateFavoriteDto {
-  @IsInt()
-  @IsNotEmpty()
-  gameId: number;
-
+export class UpdateCategoryDto {
   @IsInt()
   @IsNotEmpty()
   userId: number;

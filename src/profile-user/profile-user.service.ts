@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import UserFavorites from './entities/user-favorites.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -62,5 +62,25 @@ export class ProfileUserService {
       where: { user: { id: user.id } },
       relations: ['game'],
     });
+  }
+  async updateGameCategory(
+    gameId: number,
+    userId: number,
+    newCategory: 'Want' | 'Playing' | 'Beaten' | 'Archived',
+  ) {
+    const gameUser = await this.favoriteRepository.findOne({
+      where: {
+        game: { id: gameId },
+        user: { id: userId },
+      },
+      relations: ['game', 'user'],
+    });
+
+    if (!gameUser) {
+      throw new NotFoundException('Game not found for this user.');
+    }
+
+    gameUser.category = newCategory;
+    return this.favoriteRepository.save(gameUser);
   }
 }

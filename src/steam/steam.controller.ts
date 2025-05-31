@@ -36,6 +36,17 @@ export class SteamController {
     console.log('Steam профіль:', req.user);
     const steamProfile = req.user as ISteamUser;
     let userSteam = await this.usersService.findBySteamId(steamProfile.steamId);
+    const summary = await this.steamService.getPlayerSummary(
+      steamProfile.steamId,
+    );
+    if (!summary?.response?.players || summary.response.players.length === 0) {
+      throw new Error('Player data is not available');
+    }
+    const player = summary.response.players[0];
+    const country = player?.loccountrycode || null;
+    const lastlogoff = player?.lastlogoff
+      ? new Date(player.lastlogoff * 1000).toISOString()
+      : null;
     if (!userSteam) {
       console.log('Користувач не знайдений, створюємо новий обліковий запис.');
 
@@ -43,12 +54,16 @@ export class SteamController {
         steamId: steamProfile.steamId,
         displayName: steamProfile.displayName,
         photos: steamProfile.photos,
+        country: country,
+        lastLogoffAt: lastlogoff,
       });
     }
     const steamUser: ISteamUser = {
       steamId: userSteam.steamId,
       displayName: userSteam.displayName,
       photos: userSteam.photos.map((photo) => photo.value),
+      country: country,
+      lastLogoffAt: lastlogoff,
     };
     const token = this.authService.generateAccessToken(steamUser);
     console.log('Токен сгенеровано:', token);
@@ -80,5 +95,10 @@ export class SteamController {
       appId,
     );
     return response;
+  }
+
+  @Get('games/achievements/:steamId')
+  async getAllAchievements(@Param('steamId') steamId: string) {
+    return this.steamService.getAllGamesWithAchievements(steamId);
   }
 }

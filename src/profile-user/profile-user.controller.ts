@@ -6,6 +6,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Put,
   UseGuards,
 } from '@nestjs/common';
 import { ProfileUserService } from './profile-user.service';
@@ -13,6 +14,7 @@ import { CreateFavoriteDto } from './dto/create-user-favorite.dto';
 import { RolesGuard } from 'src/auth/guard/role.guard';
 import { Roles } from 'src/decorators/roles.decorator';
 import { UserRoles } from 'src/roles/entities/roles.entity';
+import { UpdateCategoryDto } from './dto/update-category.dto';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('profile')
@@ -42,5 +44,18 @@ export class ProfileUserController {
   @Get('games/:userId')
   getGameToProfile(@Param('userId', ParseIntPipe) userId: number) {
     return this.profileService.getGames(userId);
+  }
+
+  @Roles(UserRoles.USER)
+  @Put('game/:gameId/category')
+  updateGameCategory(
+    @Param('gameId', ParseIntPipe) gameId: number,
+    @Body() body: UpdateCategoryDto,
+  ) {
+    return this.profileService.updateGameCategory(
+      gameId,
+      body.userId,
+      body.category,
+    );
   }
 }

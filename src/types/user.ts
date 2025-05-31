@@ -7,6 +7,8 @@ interface ISteamUser {
   steamId: string;
   displayName: string;
   photos: string[];
+  country: string;
+  lastLogoffAt: string;
 }
 interface IUserWithPassword extends IUser {
   password: string;

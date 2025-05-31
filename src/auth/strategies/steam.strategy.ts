@@ -1,14 +1,15 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-steam';
 
 @Injectable()
 export class SteamStrategy extends PassportStrategy(Strategy, 'steam') {
-  constructor() {
+  constructor(private readonly configService: ConfigService) {
     super({
       returnURL: 'http://localhost:8080/steam/steam/return',
       realm: 'http://localhost:8080/',
-      apiKey: '1596086D47BC0D48FFBB1A699FB537CA',
+      apiKey: configService.get<string>('STEAM_APIKEY'),
     });
   }
 
